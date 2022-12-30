@@ -18,13 +18,20 @@
 #include "debounce.h"
 #include "basic.h"
 
+const uint8_t ms_per_cycle = 5; // Heart beat. One main loop
+const uint8_t cycles_weiche = 100; // 500ms
+const uint8_t cycles_taster = 10; // 50ms debouncing
+const uint8_t cycles_rueckmelder = 20; // 100ms debouncing for point motor
+const uint8_t cycles_ac = 200; // 1s
 
-const uint8_t NR_OF_POINTS = 10;
-
-uint8_t dataSlaveA_A;
-uint8_t dataSlaveA_B;
-uint8_t dataSlaveB_A;
-uint8_t dataSlaveB_B;
+uint8_t inputDataSlaveA_A;
+uint8_t inputDataSlaveA_B;
+uint8_t outputDataSlaveA_A = 0;
+uint8_t outputDataSlaveA_B = 0;
+uint8_t inputDataSlaveB_A;
+uint8_t inputDataSlaveB_B;
+uint8_t outputDataSlaveB_A;
+uint8_t outputDataSlaveB_B;
 uint8_t inputDataSlaveC_A;
 uint8_t inputDataSlaveC_B;
 uint8_t outputDataSlaveC_A = 0;
@@ -33,410 +40,621 @@ uint8_t inputDataSlaveD_A;
 uint8_t inputDataSlaveD_B;
 uint8_t outputDataSlaveD_A = 0;
 uint8_t outputDataSlaveD_B = 0;
-uint8_t dataSlaveE_A;
-uint8_t dataSlaveE_B;
-uint8_t dataSlaveF_A;
-uint8_t dataSlaveF_B;
+uint8_t outputDataSlaveE_A;
+uint8_t outputDataSlaveE_B;
+uint8_t inputDataSlaveE_A;
+uint8_t inputDataSlaveE_B;
 
-uint8_t targetW1;
-uint8_t targetW2;
-uint8_t targetW3;
-uint8_t targetW4;
-uint8_t targetW5;
-uint8_t targetW6;
-uint8_t targetW7;
-uint8_t targetW8;
-uint8_t targetW9;
-uint8_t targetW10;
-
-
-
-void setOnBoardLed(uint8_t flag)
+//void setOnboardLed(uint8_t flag)
+//{
+//	uint8_t dataPortB = 0;
+//	if ( flag )
+//	{
+//		dataPortB &= ~( 1 << PB1 );
+//	}
+//	else
+//	{
+//		dataPortB |= ( 1 << PB1 );
+//	}
+//	PORTB = dataPortB;
+//}
+void setOnboardLed(uint8_t flag)
 {
 	uint8_t dataPortB = 0;
-	if ( flag )
-	{
-		dataPortB &= ~( 1 << PB1 );
-	}
-	else
-	{
-		dataPortB |= ( 1 << PB1 );
-	}
+	setBit8u(&dataPortB, PB1, flag);
 	PORTB = dataPortB;
 }
 
-void setLed1(uint8_t flag)
+inline void setLed1(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_B, PCA9555_B6, flag);
+	setBit8u(&outputDataSlaveD_B, PCA9555_B6, flag);
 }
-void setLed2(uint8_t flag)
+inline void setLed2(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_A, PCA9555_A7, flag);
+	setBit8u(&outputDataSlaveD_A, PCA9555_A7, flag);
 }
-void setLed3(uint8_t flag)
+inline void setLed3(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B0, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B0, flag);
 }
-void setLed4(uint8_t flag)
+inline void setLed4(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A1, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A1, flag);
 }
-void setLed5(uint8_t flag)
+inline void setLed5(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_B, PCA9555_B7, flag);
+	setBit8u(&outputDataSlaveD_B, PCA9555_B7, flag);
 }
-void setLed6(uint8_t flag)
+inline void setLed6(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A0, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A0, flag);
 }
-void setLed7(uint8_t flag)
+inline void setLed7(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_B, PCA9555_B4, flag);
+	setBit8u(&outputDataSlaveD_B, PCA9555_B4, flag);
 }
-void setLed8(uint8_t flag)
+inline void setLed8(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_A, PCA9555_A5, flag);
+	setBit8u(&outputDataSlaveD_A, PCA9555_A5, flag);
 }
-void setLed9(uint8_t flag)
+inline void setLed9(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B4, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B4, flag);
 }
-void setLed10(uint8_t flag)
+inline void setLed10(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A5, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A5, flag);
 }
-void setLed11(uint8_t flag)
+inline void setLed11(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B5, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B5, flag);
 }
-void setLed12(uint8_t flag)
+inline void setLed12(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A6, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A6, flag);
 }
-void setLed13(uint8_t flag)
+inline void setLed13(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B1, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B1, flag);
 }
-void setLed14(uint8_t flag)
+inline void setLed14(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A2, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A2, flag);
 }
-void setLed15(uint8_t flag)
+inline void setLed15(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B2, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B2, flag);
 }
-void setLed16(uint8_t flag)
+inline void setLed16(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A3, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A3, flag);
 }
-void setLed17(uint8_t flag)
+inline void setLed17(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_B, PCA9555_B3, flag);
+	setBit8u(&outputDataSlaveC_B, PCA9555_B3, flag);
 }
-void setLed18(uint8_t flag)
+inline void setLed18(uint8_t flag)
 {
-	setBit(&outputDataSlaveC_A, PCA9555_A4, flag);
+	setBit8u(&outputDataSlaveC_A, PCA9555_A4, flag);
 }
-void setLed19(uint8_t flag)
+inline void setLed19(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_B, PCA9555_B5, flag);
+	setBit8u(&outputDataSlaveD_B, PCA9555_B5, flag);
 }
-void setLed20(uint8_t flag)
+inline void setLed20(uint8_t flag)
 {
-	setBit(&outputDataSlaveD_A, PCA9555_A6, flag);
-}
-
-uint8_t getTs1()
-{
-	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_B, PCA9555_B2);
-	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
-	return state > 0;
+	setBit8u(&outputDataSlaveD_A, PCA9555_A6, flag);
 }
 
-uint8_t getTs2()
+uint8_t getTaster1()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_A, PCA9555_A3);
+	uint8_t pressed = getBit8u(inputDataSlaveD_B, PCA9555_B2);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs3()
+
+uint8_t getTaster2()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_A, PCA9555_A2);
+	uint8_t pressed = getBit8u(inputDataSlaveD_A, PCA9555_A3);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs4()
+uint8_t getTaster3()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_B, PCA9555_B1);
+	uint8_t pressed = getBit8u(inputDataSlaveD_A, PCA9555_A2);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs5()
+uint8_t getTaster4()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_A, PCA9555_A1);
+	uint8_t pressed = getBit8u(inputDataSlaveD_B, PCA9555_B1);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs6()
+
+uint8_t getTaster5()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveC_B, PCA9555_B7);
+	uint8_t pressed = getBit8u(inputDataSlaveD_A, PCA9555_A1);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs7()
+
+uint8_t getTaster6()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveC_A, PCA9555_A7);
+	uint8_t pressed = getBit8u(inputDataSlaveC_B, PCA9555_B7);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs8()
+
+uint8_t getTaster7()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveC_B, PCA9555_B6);
+	uint8_t pressed = getBit8u(inputDataSlaveC_A, PCA9555_A7);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs9()
+
+uint8_t getTaster8()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_B, PCA9555_B0);
+	uint8_t pressed = getBit8u(inputDataSlaveC_B, PCA9555_B6);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
-uint8_t getTs10()
+uint8_t getTaster9()
 {
 	static int8_t state = 0;
-	uint8_t pressed = getBit(inputDataSlaveD_A, PCA9555_A0);
+	uint8_t pressed = getBit8u(inputDataSlaveD_A, PCA9555_A4);
 	// 10 x 5 = 50ms
-	setStateDebounced(10, pressed, &(state));
+	setStateDebounced(cycles_taster, pressed, &(state));
 	return state > 0;
 }
+
+uint8_t getTaster10()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveD_B, PCA9555_B3);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche1()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveB_A, PCA9555_A0);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	///return rueckmelder > 0;
+	return state > 0;
+}
+
+uint8_t getWeiche2()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveB_A, PCA9555_A4);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche3()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveE_A, PCA9555_A0);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche4()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveE_A, PCA9555_A4);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche5()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveE_B, PCA9555_B3);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche6()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveB_A, PCA9555_A3);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche7()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveB_B, PCA9555_B3);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche8()
+{
+	static int8_t state = 0;
+	uint8_t rueckmelder = getBit8u(inputDataSlaveA_B, PCA9555_B3);
+	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche9()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_A, PCA9555_A0);
+	setStateDebounced(cycles_rueckmelder, pressed, &(state));
+	return state > 0;
+}
+
+uint8_t getWeiche10()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_A, PCA9555_A4);
+	setStateDebounced(cycles_rueckmelder, pressed, &(state));
+	return state > 0;
+}
+
+void toggleWeiche1(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveB_B, PCA9555_B7, state);
+}
+void toggleWeiche2(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveB_A, PCA9555_A7, state);
+}
+void toggleWeiche3(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveE_B, PCA9555_B7, state);
+}
+void toggleWeiche4(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveE_A, PCA9555_A7, state);
+}
+void toggleWeiche5(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveE_B, PCA9555_B6, state);
+}
+
+
+void toggleWeiche6(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveB_A, PCA9555_A6, state);
+}
+void toggleWeiche7(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveB_B, PCA9555_B6, state);
+}
+void toggleWeiche8(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveA_B, PCA9555_B6, state);
+}
+void toggleWeiche9(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &state);
+	setBit8(&outputDataSlaveA_B, PCA9555_B7, state);
+}
+
+void toggleWeiche10(uint8_t toggle_)
+{
+	static int8_t state = 0;
+	toggleStateDebounced(cycles_weiche, toggle_, &(state));
+	setBit8(&outputDataSlaveA_A, PCA9555_A7, state);
+}
+void setRelaisForAc(uint8_t newState_)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_ac, newState_, &state);
+	setBit8u(&outputDataSlaveB_B, PCA9555_B5, state);
+}
+
+void setEntkuppler1(uint8_t flag)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_weiche, flag, &state);
+	setBit8u(&outputDataSlaveB_B, PCA9555_B2, state);
+}
+void setEntkuppler2(uint8_t flag)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_weiche, flag, &state);
+	setBit8u(&outputDataSlaveB_A, PCA9555_A2, state);
+}
+void setEntkuppler3(uint8_t flag)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_weiche, flag, &state);
+	setBit8u(&outputDataSlaveB_B, PCA9555_B1, state);
+}
+void setEntkuppler4(uint8_t flag)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_weiche, flag, &state);
+	setBit8u(&outputDataSlaveB_A, PCA9555_A1, state);
+}
+void setEntkuppler5(uint8_t flag)
+{
+	static int8_t state = 0;
+	setStateDebounced(cycles_weiche, flag, &state);
+	setBit8u(&outputDataSlaveB_B, PCA9555_B0, state);
+}
+uint8_t getTsEnt1()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_A, PCA9555_A3);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+uint8_t getTsEnt2()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_B, PCA9555_B2);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+uint8_t getTsEnt3()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_A, PCA9555_A2);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+uint8_t getTsEnt4()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_B, PCA9555_B1);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+uint8_t getTsEnt5()
+{
+	static int8_t state = 0;
+	uint8_t pressed = getBit8u(inputDataSlaveA_A, PCA9555_A1);
+	// 10 x 5 = 50ms
+	setStateDebounced(cycles_taster, pressed, &(state));
+	return state > 0;
+}
+
+
 
 int main()
 {
 	// init AVR
 
 	// AVR Port B
+	// Onboard Led
 	// Port B.1 (Pin 15) is Output (Led), all others input
 	DDRB = 1 << PB1;
-    for (uint8_t x = 0; x < 0; ++x)
-	{
-		setOnBoardLed(0);
-		_delay_ms(2000);
-		setOnBoardLed(1);
-		_delay_ms(2000);
-	}
 
-	// initialize. Output pin = 0, all others (Input) = 1, i.e. internal pull ups active
-
-	// init Slave A
 	// fixed part for PCA9555:    0b0100
 	// variable part         :          AAA
 	// R/W                   :             x
 	const uint8_t addressSlaveA = 0b01000000;
-	// const uint8_t addressSlaveB = 0b01000010; not used, yet
+	const uint8_t addressSlaveB = 0b01000010;
 	const uint8_t addressSlaveC = 0b01000100;
 	const uint8_t addressSlaveD = 0b01000110;
-	// const uint8_t addressSlaveE = 0b01001000; not used, yet
-	// const uint8_t addressSlaveF = 0b01001010; not used, yet
-	// const uint8_t addressSlaveG = 0b01001100; not used, yet
-	// const uint8_t addressSlaveH = 0b01001110; not used, yet
+	//@todo address 100, not 101
+	const uint8_t addressSlaveE = 0b01001000;
+	const uint8_t addressSlaveF = 0b01001010;
+	const uint8_t addressSlaveG = 0b01001100;
+	const uint8_t addressSlaveH = 0b01001110;
 
 	// init I2C library
 	i2c_init();
 
-	// Configure Ports
+	// Slave A. Input A0, A1, A2, A3, A4,  B0, B1, B2, B3. Others output
+	PCA9555_write(PCA9555_CommandConfigurationPortA,
+			      addressSlaveA,
+			      (1 << PCA9555_A0) |
+			      (1 << PCA9555_A1) |
+			      (1 << PCA9555_A2) |
+			      (1 << PCA9555_A3) |
+			      (1 << PCA9555_A4),
+			      (1 << PCA9555_B0) |
+			      (1 << PCA9555_B1) |
+			      (1 << PCA9555_B2) |
+			      (1 << PCA9555_B3) );
+
+
+	// Slave B. Input A0, A3, A4, B3
+	PCA9555_write(PCA9555_CommandConfigurationPortA,
+			      addressSlaveB,
+			      (1 << PCA9555_A0) |
+			      (1 << PCA9555_A3) |
+			      (1 << PCA9555_A4),
+			      (1 << PCA9555_B3) );
+	// Slave B. Reverse all inputs
+	PCA9555_write(PCA9555_CommandPolarityInversionPortA,
+			      addressSlaveB,
+			      (1 << PCA9555_A0) |
+			      (1 << PCA9555_A3) |
+			      (1 << PCA9555_A4),
+			      (1 << PCA9555_B3) );
+
+
 	// Slave C. Input B7, B6, A7. All others output
 	PCA9555_write(PCA9555_CommandConfigurationPortA,
 			      addressSlaveC,
 			      1 << PCA9555_A7 ,
 			      (1 << PCA9555_B7) | (1 << PCA9555_B6) );
 
-	// Slave D. Input A0, A1, A2, A3, B0, B1, B2. All others output
-	PCA9555_write(PCA9555_CommandConfigurationPortA,
-			addressSlaveD,
-			(1 << PCA9555_A0) | (1 << PCA9555_A1) | (1 << PCA9555_A2) | (1 << PCA9555_A3),
-			(1 << PCA9555_B0) | (1 << PCA9555_B1) | (1 << PCA9555_B2));
-
-	// Reverse Inputs
-	// Slave A. Reverse B0 and B7
-	PCA9555_write(PCA9555_CommandPolarityInversionPortA, addressSlaveA, 0x00, ( 1 << PCA9555_B0 | 1 << PCA9555_B7) );
 	// Slave C. Reverse all inputs
 	PCA9555_write(PCA9555_CommandPolarityInversionPortA,
 	        	  addressSlaveC,
 			      1 << PCA9555_A7,
-			      (1 << PCA9555_B7) | (1 << PCA9555_B6));
+			      (1 << PCA9555_B7) | (1 << PCA9555_B6) );
 
+	// Slave D. Input A0, A1, A2, A3, A4, B0, B1, B2. All others output
+	PCA9555_write(PCA9555_CommandConfigurationPortA,
+			addressSlaveD,
+			(1 << PCA9555_A0) |
+			(1 << PCA9555_A1) |
+			(1 << PCA9555_A2) |
+			(1 << PCA9555_A3) |
+			(1 << PCA9555_A4),
+			(1 << PCA9555_B0) |
+			(1 << PCA9555_B1) |
+			(1 << PCA9555_B2) |
+			(1 << PCA9555_B3));
 	// Slave D. Reverse all inputs
 	PCA9555_write(PCA9555_CommandPolarityInversionPortA,
 			      addressSlaveD,
-			      (1 << PCA9555_A0) | (1 << PCA9555_A1) | (1 << PCA9555_A2) | (1 << PCA9555_A3),
-			      (1 << PCA9555_B0) | (1 << PCA9555_B1) | (1 << PCA9555_B2) );
+			      (1 << PCA9555_A0) |
+			      (1 << PCA9555_A1) |
+			      (1 << PCA9555_A2) |
+			      (1 << PCA9555_A3) |
+			      (1 << PCA9555_A4),
+			      (1 << PCA9555_B0) |
+			      (1 << PCA9555_B1) |
+			      (1 << PCA9555_B2) |
+			      (1 << PCA9555_B3));
 
-	/*
-	uint8_t pointActualState[NR_OF_POINTS];
-	int8_t  pointTargetStateDebounced[NR_OF_POINTS];
-	int8_t  buttonStateDebounced[NR_OF_POINTS];
 
-	for ( unsigned int x = 0; x < NR_OF_POINTS; ++x )
+	// Slave E. Input A0, A1, A2, A3, A4, B0, B1, B2, B3. All others output
+	PCA9555_write(PCA9555_CommandConfigurationPortA,
+			addressSlaveE,
+			(1 << PCA9555_A0) |
+			(1 << PCA9555_A1) |
+			(1 << PCA9555_A2) |
+			(1 << PCA9555_A3) |
+			(1 << PCA9555_A4),
+			(1 << PCA9555_B0) |
+			(1 << PCA9555_B1) |
+			(1 << PCA9555_B2) |
+			(1 << PCA9555_B3));
+	// Slave E. Reverse all inputs from Weichenrueckmelder
+	PCA9555_write(PCA9555_CommandPolarityInversionPortA,
+			      addressSlaveE,
+			      (1 << PCA9555_A0) |
+			      (1 << PCA9555_A4),
+			      (1 << PCA9555_B3));
+
+
+	static int first = 1;
+	uint16_t count = 0;
+	uint16_t init = 0;
+	for (;; ++count)
 	{
-		pointActualState[x] = 0U;
-		buttonStateDebounced[x] = 0;
-	}
-
-	// Initialize. Read actual status of points
-    // Reading Port A and B of Slave A
-	PCA9555_read(addressSlaveA, &dataSlaveA_A, &dataSlaveA_B);
-	{
-	   // On startup Set target State to actual State
-	   pointActualState[0] = ( dataSlaveA_B & ( 1 << PCA9555_B0) ) >> PCA9555_B0;
-	   //pointTargetStateDebounced[0] = ( pointActualState[0] ) ? 1 : -1;
-	   pointTargetStateDebounced[0] = pointActualState[0];
-	}
-	_delay_ms(1000);
-
-	 */
-
-	for (;;)
-	{
-		//      setOnBoardLed(1);
-		// _delay_ms(10);
-
-		/*
-        // Reading Port A and B of Slave A
-		PCA9555_read(addressSlaveA, &dataSlaveA_A, &dataSlaveA_B);
-
-        // Check whether point is straight (0) or abgezweigt (1)
-		pointActualState[0] = ( dataSlaveA_B & ( 1 << PCA9555_B0) ) >> PCA9555_B0;
-		uint8_t buttonPressed = 0;
-		// Check whether button is pressed
+		if (count  >20)
 		{
-            buttonPressed = ( dataSlaveA_B & ( 1 << PCA9555_B7) ) >> PCA9555_B7;
-
-   	    	// 30 x 5 = 150ms
-		    setStateDebounced(100, buttonPressed, &(buttonStateDebounced[0]));
-			// Determine point target state
-			// 100 x 5 ms = 500ms -> max 2Hz
-		    //toggleStateDebounced(100, 0, &pointTargetStateDebounced[0]);
-		    toggleStateDebounced(100, buttonStateDebounced[0] > 0, &pointTargetStateDebounced[0]);
-		    // toggleStateDebounced(100, buttonPressed, &pointTargetStateDebounced[0]);
-
+			count = 0;
+		}
+		if ( count  > 10)
+		{
+			setOnboardLed(1);
+		}
+		else
+		{
+			setOnboardLed(0);
 		}
 
-        // Set Outputs of Slave A
-		{   // Set Outputs of Slave A
-
-			uint8_t dataWriteA_A = 0;
-			uint8_t dataWriteA_B = 0;
-
-			// A7 is LED
-			// A1 is LED
-			// A0 is Relais
-
-
-			//if ( pointTargetStateDebounced[0] > 0 )
-			//{
-			//	// dataWriteA_A |= ( 1 << PCA9555_A0);
-			//}
-
-			if ( pointActualState[0] == 1 )
-			// if ( buttonStateDebounced[0] >= 1 ) // button Pressed
-			// if ( buttonPressed ) // button Pressed
-			// if ( pointTargetStateDebounced[0] >= 1 )
-			{
-				dataWriteA_A |= ( 1 << PCA9555_A7);
-			}
-			if ( pointTargetStateDebounced[0] > 0 )
-			{
-				dataWriteA_A |= ( 1 << PCA9555_A1 );
-				dataWriteA_A |= ( 1 << PCA9555_A0 );
-			}
-
-			// Invert output data
-			dataWriteA_A ^= ( 1 << PCA9555_A7 | 1 << PCA9555_A1 );
-			PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveA, dataWriteA_A, dataWriteA_B);
-		}
-		 */
-
+	    // Read inputs of Slave A
+		PCA9555_read(addressSlaveA, &inputDataSlaveA_A, &inputDataSlaveA_B);
+	    // Read inputs of Slave B
+		PCA9555_read(addressSlaveB, &inputDataSlaveB_A, &inputDataSlaveB_B);
 		// Read inputs of Slave C
-		///PCA9555_read(addressSlaveC, &inputDataSlaveC_A, &inputDataSlaveC_B);
+		PCA9555_read(addressSlaveC, &inputDataSlaveC_A, &inputDataSlaveC_B);
 		// Read inputs of Slave D
-		///PCA9555_read(addressSlaveD, &inputDataSlaveD_A, &inputDataSlaveD_B);
+		PCA9555_read(addressSlaveD, &inputDataSlaveD_A, &inputDataSlaveD_B);
+		// Read inputs of Slave E
+		PCA9555_read(addressSlaveE, &inputDataSlaveE_A, &inputDataSlaveE_B);
 
-		//if ( getTs1() )
-		{
-			setLed1(0);
-			setLed2(0);
-			setLed3(0);
-			setLed4(0);
-			setLed5(0);
-			setLed6(0);
-			setLed7(0);
-			setLed8(0);
-			setLed9(0);
-			setLed10(0);
-			setLed11(0);
-			setLed12(0);
-			setLed13(0);
-			setLed14(0);
-			setLed15(0);
-			setLed16(0);
-			setLed17(0);
-			setLed18(0);
-			setLed19(1);
-			setLed20(0);
-		}
-		// else
-		{
+		setLed2(getWeiche1());
+		setLed1(!getWeiche1());
+		setLed3(getWeiche2());
+		setLed4(!getWeiche2());
 
-			//        setLed1(0);
-			//        setLed2(0);
-			//        setLed3(0);
-			//        setLed4(0);
-			//        setLed5(0);
-			//        setLed6(0);
-			//        setLed7(0);
-			//        setLed8(0);
-			//        setLed9(0);
-			//        setLed10(0);
-			//        setLed11(0);
-			//        setLed12(0);
-			//        setLed13(0);
-			//        setLed14(0);
-			//        setLed15(0);
-			//        setLed16(0);
-			//        setLed17(0);
-			//        setLed18(0);
-			//        setLed19(0);
-			//        setLed20(0);
-		}
+		setLed6(getWeiche3());
+		setLed5(!getWeiche3());
+		setLed8(getWeiche4());
+		setLed7(!getWeiche4());
+		setLed20(getWeiche5());
+		setLed19(!getWeiche5());
 
+		setLed12(getWeiche6());
+		setLed11(!getWeiche6());
+		setLed10(getWeiche7());
+		setLed9(!getWeiche7());
+		setLed13(getWeiche8());
+		setLed14(!getWeiche8());
+		setLed16(getWeiche9());
+		setLed15(!getWeiche9());
+		setLed18(getWeiche10());
+		setLed17(!getWeiche10());
+
+		toggleWeiche1(getTaster1());
+		toggleWeiche2(getTaster2());
+		toggleWeiche3(getTaster3());
+		toggleWeiche4(getTaster4());
+		toggleWeiche5(getTaster5());
+		toggleWeiche6(getTaster6());
+		toggleWeiche7(getTaster7());
+		toggleWeiche8(getTaster8());
+		toggleWeiche9(getTaster9());
+		toggleWeiche10(getTaster10());
+
+		setEntkuppler1(getTsEnt1());
+		setEntkuppler2(getTsEnt2());
+		setEntkuppler3(getTsEnt3());
+		setEntkuppler4(getTsEnt4());
+		setEntkuppler5(getTsEnt5());
+
+		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveA, outputDataSlaveA_A, outputDataSlaveA_B);
+		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveB, outputDataSlaveB_A, outputDataSlaveB_B);
 		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveC, outputDataSlaveC_A, outputDataSlaveC_B);
 		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveD, outputDataSlaveD_A, outputDataSlaveD_B);
-		_delay_ms(1000);
-		outputDataSlaveC_A = 0;
-		outputDataSlaveC_B = 0;
-		outputDataSlaveD_A = 0;
-		outputDataSlaveD_B = 0;
-		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveC, outputDataSlaveC_A, outputDataSlaveC_B);
-		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveD, outputDataSlaveD_A, outputDataSlaveD_B);
-		_delay_ms(1000);
+		PCA9555_write(PCA9555_CommandOutputPortA, addressSlaveE, outputDataSlaveE_A, outputDataSlaveE_B);
+
+		if ( ++init < 1000 ) // 5s
+		{
+			setRelaisForAc(0);
+		}
+		else
+		{
+			setRelaisForAc(1);
+		}
+
+		_delay_ms(ms_per_cycle);
 
 	};
 

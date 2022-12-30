@@ -12,13 +12,13 @@
 
 // PCA9555
 extern const uint8_t PCA9555_CommandInputPortA;
-extern const uint8_t PCA9555_CommandInputPortB;
+// extern const uint8_t PCA9555_CommandInputPortB;
 extern const uint8_t PCA9555_CommandOutputPortA;
-extern const uint8_t PCA9555_CommandOutputPortB;
+// extern const uint8_t PCA9555_CommandOutputPortB;
 extern const uint8_t PCA9555_CommandPolarityInversionPortA;
-extern const uint8_t PCA9555_CommandPolarityInversionPortB;
+// extern const uint8_t PCA9555_CommandPolarityInversionPortB;
 extern const uint8_t PCA9555_CommandConfigurationPortA;
-extern const uint8_t PCA9555_CommandConfigurationPortB;
+// extern const uint8_t PCA9555_CommandConfigurationPortB;
 
 extern const uint8_t PCA9555_A0;
 extern const uint8_t PCA9555_A1;

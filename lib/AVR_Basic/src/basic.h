@@ -10,7 +10,10 @@
 
 #include <inttypes.h>
 
-void    setBit(uint8_t* byte, uint8_t position, uint8_t flag);
-uint8_t getBit(uint8_t  byte, uint8_t position);
+/** set bit if flag is not 0 */
+void    setBit8u(uint8_t* byte, uint8_t position, uint8_t flag);
+/** set bit if flag is > 0, clear it if flag is < 0 */
+void    setBit8(uint8_t* byte, uint8_t position, int8_t flag);
+uint8_t getBit8u(uint8_t  byte, uint8_t position);
 
 #endif /* BASIC_H_ */

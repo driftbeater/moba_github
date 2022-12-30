@@ -7,30 +7,16 @@
 
 #include "debounce.h"
 
-void toggleStateDebounced(int8_t cycles, uint8_t toggle, int8_t* debouncedState_)
+void toggleStateDebounced(int8_t cycles, uint8_t toggle_, int8_t* debouncedState_)
 {
-	uint8_t targetState = 0;
-	if (toggle) {
-		if (*debouncedState_ >= cycles)
-		{
-			targetState = 0;
-		}
-		else if ( *debouncedState_ <= -cycles)
-		{
-			targetState = 1;
-		}
-		else
-		{
-			// target state remains actual state
-			if ( *debouncedState_ >= 1 )
-			{
-				targetState = 1;
-			}
-			else
-			{
-				targetState = 0;
-			}
-		}
+	uint8_t targetState;
+	if ( toggle_ && *debouncedState_ >= cycles )
+	{
+		targetState = 0;
+	}
+	else if ( toggle_ && *debouncedState_ <= -cycles )
+	{
+		targetState = 1;
 	}
 	else
 	{
@@ -45,6 +31,8 @@ void toggleStateDebounced(int8_t cycles, uint8_t toggle, int8_t* debouncedState_
 	}
 	setStateDebounced(cycles, targetState, debouncedState_);
 }
+
+
 
 void setStateDebounced(int8_t cycles, uint8_t targetState_, int8_t* stateDebounced_)
 {

@@ -14,12 +14,13 @@
 
 /* define CPU frequency in Mhz here if not defined in Makefile */
 #ifndef F_CPU
-#define F_CPU 4000000UL
+// #define F_CPU 4000000UL @todo define F_CPU
+#define F_CPU 8000000UL
 #endif
 
 /* I2C clock in Hz */
-#define SCL_CLOCK  400000L
-
+// #define SCL_CLOCK  400000L @todo set SCL_CLOCK
+#define SCL_CLOCK  100000L
 
 /*************************************************************************
  Initialization of the I2C bus interface. Need to be called only once
@@ -28,7 +29,7 @@ void i2c_init(void)
 {
   /* initialize TWI clock: 100 kHz clock, TWPS = 0 => prescaler = 1 */
   
-  TWSR = 0;                         /* no prescaler */
+  //  TWSR = 0;                         /* no prescaler */
   TWBR = ((F_CPU/SCL_CLOCK)-16)/2;  /* must be > 10 for stable operation */
 
 }/* i2c_init */

@@ -65,83 +65,83 @@ void setOnboardLed(uint8_t flag)
 	PORTB = dataPortB;
 }
 
-inline void setLed1(uint8_t flag)
+void setLed1(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_B, PCA9555_B6, flag);
 }
-inline void setLed2(uint8_t flag)
+void setLed2(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_A, PCA9555_A7, flag);
 }
-inline void setLed3(uint8_t flag)
+void setLed3(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B0, flag);
 }
-inline void setLed4(uint8_t flag)
+void setLed4(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A1, flag);
 }
-inline void setLed5(uint8_t flag)
+void setLed5(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_B, PCA9555_B7, flag);
 }
-inline void setLed6(uint8_t flag)
+void setLed6(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A0, flag);
 }
-inline void setLed7(uint8_t flag)
+void setLed7(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_B, PCA9555_B4, flag);
 }
-inline void setLed8(uint8_t flag)
+void setLed8(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_A, PCA9555_A5, flag);
 }
-inline void setLed9(uint8_t flag)
+void setLed9(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B4, flag);
 }
-inline void setLed10(uint8_t flag)
+void setLed10(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A5, flag);
 }
-inline void setLed11(uint8_t flag)
+void setLed11(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B5, flag);
 }
-inline void setLed12(uint8_t flag)
+void setLed12(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A6, flag);
 }
-inline void setLed13(uint8_t flag)
+void setLed13(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B1, flag);
 }
-inline void setLed14(uint8_t flag)
+void setLed14(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A2, flag);
 }
-inline void setLed15(uint8_t flag)
+void setLed15(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B2, flag);
 }
-inline void setLed16(uint8_t flag)
+void setLed16(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A3, flag);
 }
-inline void setLed17(uint8_t flag)
+void setLed17(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_B, PCA9555_B3, flag);
 }
-inline void setLed18(uint8_t flag)
+void setLed18(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveC_A, PCA9555_A4, flag);
 }
-inline void setLed19(uint8_t flag)
+void setLed19(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_B, PCA9555_B5, flag);
 }
-inline void setLed20(uint8_t flag)
+void setLed20(uint8_t flag)
 {
 	setBit8u(&outputDataSlaveD_A, PCA9555_A6, flag);
 }
@@ -475,9 +475,9 @@ int main()
 	const uint8_t addressSlaveD = 0b01000110;
 	//@todo address 100, not 101
 	const uint8_t addressSlaveE = 0b01001000;
-	const uint8_t addressSlaveF = 0b01001010;
-	const uint8_t addressSlaveG = 0b01001100;
-	const uint8_t addressSlaveH = 0b01001110;
+	// const uint8_t addressSlaveF = 0b01001010;
+	//const uint8_t addressSlaveG = 0b01001100;
+	//const uint8_t addressSlaveH = 0b01001110;
 
 	// init I2C library
 	i2c_init();
@@ -570,7 +570,7 @@ int main()
 			      (1 << PCA9555_B3));
 
 
-	static int first = 1;
+	// static int first = 1;
 	uint16_t count = 0;
 	uint16_t init = 0;
 	for (;; ++count)

@@ -12,6 +12,7 @@
 // fuses should be low FF high C9
 
 #include <avr/io.h>
+#include <avr/wdt.h>
 #include <util/delay.h>
 #include "i2cmaster.h"
 #include "PCA9555.h"
@@ -455,11 +456,30 @@ uint8_t getTsEnt5()
 	return state > 0;
 }
 
-
+void init_watchdog()
+{
+	uint8_t reason_for_reset = MCUSR;
+	MCUSR = 0;
+	// Aftr a reset watchdog is automatically enabled with a period of 15ms. 
+	// It has to be disabled quickly
+	wdt_disable();
+	wdt_enable(WDTO_2S);
+	switch (reason_for_reset)
+	{
+		// todo 
+		case 1U:
+		break;
+		default:
+		break;
+	}
+}
 
 int main()
 {
 	// init AVR
+
+	// Enable watchdog
+	init_watchdog();
 
 	// AVR Port B
 	// Onboard Led
@@ -655,6 +675,8 @@ int main()
 		}
 
 		_delay_ms(ms_per_cycle);
+
+		wdt_reset();
 
 	};
 

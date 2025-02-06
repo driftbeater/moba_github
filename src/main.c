@@ -238,8 +238,9 @@ uint8_t getWeiche1()
 {
 	static int8_t state = 0;
 	uint8_t rueckmelder = getBit8u(inputDataSlaveB_A, PCA9555_A0);
+	// rueckmelder ist falsch angeschlossen. Muss invertiert werden
+	rueckmelder = !rueckmelder;
 	setStateDebounced(cycles_rueckmelder, rueckmelder, &(state));
-	///return rueckmelder > 0;
 	return state > 0;
 }
 
